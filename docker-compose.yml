@@ -1,0 +1,54 @@
+version: '3'
+
+services:
+  db :
+    image: postgres
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=1nt3r4ct1v3
+      - POSTGRES_DB=brief_db
+    ports:
+      - "5433:5432"
+    restart: unless-stopped
+    container_name: db-pgl
+    volumes:
+      - ./db/data:/var/lib/postgresql/data
+  portainer:
+    image: portainer/portainer
+    ports:
+      - "9500:9000"
+    command: -H unix:///var/run/docker.sock
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./portainer_data:/data
+    container_name: portainer
+    restart: unless-stopped
+  brief:
+    image: strapi/strapi
+    environment:
+      APP_NAME: brief-app
+      DATABASE_CLIENT: postgres
+      DATABASE_HOST: localhost
+      DATABASE_PORT: 5433
+      DATABASE_NAME: brief_db
+      DATABAS∫E_USERNAME: postgres
+      DATABASE_PASSWORD: 1nt3r4ct1v3
+      DATABASE_SSL: "false"
+    ports:
+      - 1338:1337
+    volumes:
+      - ./brief-app:/usr/src/api/brief-app
+    depends_on:
+      - db
+    restart: unless-stopped
+    container_name: cms
+    build: ./src
+  # nginx:
+  #   image: nginx:alpine
+  #   restart: always
+  #   container_name: server
+  #   volumes:
+  #     - ./nginx/nginx.conf:/etc/nginx/nginx.conf
+  #   ports:
+  #     - 8080:80
+    
